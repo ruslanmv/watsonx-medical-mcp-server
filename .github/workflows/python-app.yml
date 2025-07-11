@@ -1,0 +1,51 @@
+# .github/workflows/python-app.yml
+# ────────────────────────────────────────────────────────────────
+# CI workflow: run `make check` (lint + fmt + tests) on every push
+# ────────────────────────────────────────────────────────────────
+name: Python CI – Watsonx Medical MCP Server
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [ "3.11" ]   # match Makefile / project requirement
+
+    steps:
+      # 1️⃣ Check out repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      # 3️⃣ (Optional) System build tooling for Python wheels
+      - name: Install build-essential
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential
+
+      # 4️⃣ Create virtual environment & install deps
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 5️⃣ Run composite Makefile target (lint + black + pytest)
+      - name: Run make check
+        run: |
+          source .venv/bin/activate
+          make check
