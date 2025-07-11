@@ -185,8 +185,6 @@ make clean         # Remove .venv
   pre-commit install
   ```
 
-Add a simple GitHub Actions workflow (`python-app.yml`) to execute `make check` on each push for CI.
-
 ---
 
 ## 📜 License
