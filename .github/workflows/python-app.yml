@@ -1,11 +1,10 @@
-# .github/workflows/python-app.yml
 name: Python CI – Watsonx Medical MCP Server
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   test:
@@ -13,6 +12,16 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11"]
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # 👉 All secrets are available to every step below this line
+    # ──────────────────────────────────────────────────────────────────────────
+    env:
+      WATSONX_APIKEY: ${{ secrets.WATSONX_APIKEY }}
+      PROJECT_ID:     ${{ secrets.PROJECT_ID }}
+      WATSONX_URL:    ${{ secrets.WATSONX_URL }}   # omit if you didn’t set one
+      # optional: leave unset or set to "live"
+      WATSONX_MODE:   live
 
     steps:
       - name: Checkout code
@@ -29,9 +38,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends build-essential
 
-      - name: Set up virtual environment and install dependencies
+      - name: Set up virtual environment and install Python deps
         run: |
-          python3.11 -m venv .venv
+          python${{ matrix.python-version }} -m venv .venv
           source .venv/bin/activate
           pip install --upgrade pip
           pip install flake8 black pytest python-dotenv

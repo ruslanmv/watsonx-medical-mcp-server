@@ -11,7 +11,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 # Set environment variables before importing server
 os.environ["WATSONX_APIKEY"] = "dummy_api_key_for_testing"
 os.environ["PROJECT_ID"] = "dummy_project_id_for_testing"
-
+os.environ["WATSONX_MODE"] = "mock"
 # Import server after setting environment variables
 import server  # noqa: E402
 

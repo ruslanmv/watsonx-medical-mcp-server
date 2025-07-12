@@ -13,10 +13,14 @@ from ibm_watsonx_ai import APIClient, Credentials
 from ibm_watsonx_ai.foundation_models import ModelInference
 from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
 
+# Unit test
+from unittest.mock import MagicMock
+
 # Load environment variables
 load_dotenv()
 
 # Configuration
+MODE = os.getenv("WATSONX_MODE", "mock").lower()
 API_KEY = os.getenv("WATSONX_APIKEY")
 URL = os.getenv("WATSONX_URL", "https://us-south.ml.cloud.ibm.com")
 PROJECT_ID = os.getenv("PROJECT_ID")
@@ -37,21 +41,31 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize IBM watsonx.ai client
-try:
-    credentials = Credentials(url=URL, api_key=API_KEY)
-    client = APIClient(credentials=credentials, project_id=PROJECT_ID)
+# -----------------------------------------------------------------------
+# Switch to a MagicMock implementation when WATSONX_MODE=mock
+# -----------------------------------------------------------------------
+if MODE == "mock":
+    model = MagicMock(name="MockModelInference")
+    logger.info("Watsonx.ai initialised in MOCK mode – no network calls.")
+else:
 
-    # Initialize the inference model
-    model = ModelInference(
-        model_id=MODEL_ID, credentials=credentials, project_id=PROJECT_ID
-    )
+    # Initialize IBM watsonx.ai client
+    try:
+        credentials = Credentials(url=URL, api_key=API_KEY)
+        client = APIClient(credentials=credentials, project_id=PROJECT_ID)
 
-    logger.info(f"Initialized watsonx.ai model '{MODEL_ID}' for project '{PROJECT_ID}'")
+        # Initialize the inference model
+        model = ModelInference(
+            model_id=MODEL_ID, credentials=credentials, project_id=PROJECT_ID
+        )
 
-except Exception as e:
-    logger.error(f"Failed to initialize watsonx.ai client: {e}")
-    raise
+        logger.info(
+            f"Initialized watsonx.ai model '{MODEL_ID}' for project '{PROJECT_ID}'"
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to initialize watsonx.ai client: {e}")
+        raise
 
 # Create MCP server instance
 mcp = FastMCP(SERVER_NAME)
