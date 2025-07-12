@@ -2,167 +2,135 @@
 import sys
 import os
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-# Setup project path
+# ---------------------------------------------------------------------------
+# Boot-strap repository path and force watsonx into mock mode
+# ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-# Set environment variables before importing server
 os.environ["WATSONX_APIKEY"] = "dummy_api_key_for_testing"
 os.environ["PROJECT_ID"] = "dummy_project_id_for_testing"
 os.environ["WATSONX_MODE"] = "mock"
-# Import server after setting environment variables
+
 import server  # noqa: E402
 
 
 class TestWatsonxMCPServer:
-    """Test suite for Watsonx Medical MCP Server"""
+    """Unit-tests for Watsonx Medical MCP Server (offline / mock mode)."""
 
-    @patch("server.model")  # was "server.ModelInference"
-    def test_chat_with_watsonx_success(self, mock_model_inference):
-        """Test successful chat response"""
-        # Arrange
-        mock_api_client = MagicMock()
-        mock_api_client.generate_text.return_value = {
+    # ------------------------------------------------------------------ #
+    # chat_with_watsonx
+    # ------------------------------------------------------------------ #
+    @patch("server.model")
+    def test_chat_with_watsonx_success(self, mock_model):
+        mock_model.generate_text.return_value = {
             "results": [{"generated_text": "Test response from watsonx"}]
         }
-        mock_model_inference.return_value = mock_api_client
 
-        # Act
         response = server.chat_with_watsonx("What is a test?")
 
-        # Assert
         assert response == "Test response from watsonx"
-        mock_api_client.generate_text.assert_called_once()
+        mock_model.generate_text.assert_called_once()
 
-    @patch("server.model")  # was "server.ModelInference"
-    def test_chat_with_watsonx_api_error(self, mock_model_inference):
-        """Test error handling in chat function"""
-        # Arrange
-        mock_api_client = MagicMock()
-        mock_api_client.generate_text.side_effect = Exception("API Error")
-        mock_model_inference.return_value = mock_api_client
+    @patch("server.model")
+    def test_chat_with_watsonx_api_error(self, mock_model):
+        mock_model.generate_text.side_effect = Exception("API Error")
 
-        # Act
         response = server.chat_with_watsonx("This will fail")
 
-        # Assert
         assert "Error generating response: API Error" in response
+        mock_model.generate_text.assert_called_once()
 
-    @patch("server.model")  # was "server.ModelInference"
-    def test_analyze_medical_symptoms(self, mock_model_inference):
-        """Test medical symptom analysis"""
-        # Arrange
-        mock_api_client = MagicMock()
-        mock_api_client.generate_text.return_value = {
+    # ------------------------------------------------------------------ #
+    # analyze_medical_symptoms
+    # ------------------------------------------------------------------ #
+    @patch("server.model")
+    def test_analyze_medical_symptoms(self, mock_model):
+        mock_model.generate_text.return_value = {
             "results": [{"generated_text": "Medical analysis result"}]
         }
-        mock_model_inference.return_value = mock_api_client
 
-        # Act
         response = server.analyze_medical_symptoms(
             "headache and fever", patient_age=30, patient_gender="female"
         )
 
-        # Assert
         assert response == "Medical analysis result"
-        mock_api_client.generate_text.assert_called_once()
+        mock_model.generate_text.assert_called_once()
 
+    # ------------------------------------------------------------------ #
+    # Static helpers & resources
+    # ------------------------------------------------------------------ #
     def test_get_server_info_resource(self):
-        """Test server info resource"""
-        # Act
         info = server.get_server_info()
 
-        # Assert
         assert isinstance(info, str)
         assert server.SERVER_NAME in info
         assert "Available Tools:" in info
 
     def test_clear_conversation_history(self):
-        """Test conversation history clearing"""
-        # Arrange - add some history first
         server.conversation_history.append({"role": "user", "content": "test"})
-
-        # Act
         result = server.clear_conversation_history()
 
-        # Assert
         assert len(server.conversation_history) == 0
         assert "cleared" in result.lower()
 
     def test_get_patient_greeting(self):
-        """Test patient greeting resource"""
-        # Act
         greeting = server.get_patient_greeting("John")
 
-        # Assert
         assert "John" in greeting
         assert "medical assistant" in greeting.lower()
 
     def test_medical_consultation_prompt(self):
-        """Test medical consultation prompt generation"""
-        # Act
         prompt = server.medical_consultation_prompt(
             "headache", duration="2 days", severity="moderate"
         )
 
-        # Assert
         assert "headache" in prompt
         assert "2 days" in prompt
         assert "moderate" in prompt
         assert "medical assistant" in prompt.lower()
 
     def test_health_education_prompt(self):
-        """Test health education prompt generation"""
-        # Act
         prompt = server.health_education_prompt("diabetes")
 
-        # Assert
         assert "diabetes" in prompt
         assert "health educator" in prompt.lower()
         assert "prevention" in prompt.lower()
 
-    @patch("server.model")  # was "server.ModelInference"
-    def test_get_conversation_summary_empty(self, mock_model_inference):
-        """Test conversation summary with empty history"""
-        # Arrange - clear any existing history
+    # ------------------------------------------------------------------ #
+    # get_conversation_summary
+    # ------------------------------------------------------------------ #
+    @patch("server.model")
+    def test_get_conversation_summary_empty(self, mock_model):
         server.conversation_history.clear()
-
-        # Act
         summary = server.get_conversation_summary()
 
-        # Assert
         assert summary == "No conversation history available."
 
-    @patch("server.model")  # was "server.ModelInference"
-    def test_get_conversation_summary_with_history(self, mock_model_inference):
-        """Test conversation summary with existing history"""
-        # Arrange
-        mock_api_client = MagicMock()
-        mock_api_client.generate_text.return_value = {
+    @patch("server.model")
+    def test_get_conversation_summary_with_history(self, mock_model):
+        mock_model.generate_text.return_value = {
             "results": [{"generated_text": "Summary of conversation"}]
         }
-        mock_model_inference.return_value = mock_api_client
 
-        # Add some conversation history
         server.conversation_history.clear()
         server.conversation_history.append({"role": "user", "content": "Hello"})
         server.conversation_history.append({"role": "assistant", "content": "Hi there"})
 
-        # Act
         summary = server.get_conversation_summary()
 
-        # Assert
         assert summary == "Summary of conversation"
-        mock_api_client.generate_text.assert_called_once()
+        mock_model.generate_text.assert_called_once()
 
+    # ------------------------------------------------------------------ #
+    # Configuration sanity
+    # ------------------------------------------------------------------ #
     def test_server_configuration(self):
-        """Test server configuration values"""
-        # Assert
-        assert server.SERVER_NAME is not None
-        assert server.SERVER_VERSION is not None
-        assert server.MODEL_ID is not None
+        assert server.SERVER_NAME
+        assert server.SERVER_VERSION
+        assert server.MODEL_ID
         assert isinstance(server.conversation_history, list)
 
 
