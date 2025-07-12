@@ -19,7 +19,7 @@ import server  # noqa: E402
 class TestWatsonxMCPServer:
     """Test suite for Watsonx Medical MCP Server"""
 
-    @patch("server.model")                  # was "server.ModelInference"
+    @patch("server.model")  # was "server.ModelInference"
     def test_chat_with_watsonx_success(self, mock_model_inference):
         """Test successful chat response"""
         # Arrange
@@ -36,7 +36,7 @@ class TestWatsonxMCPServer:
         assert response == "Test response from watsonx"
         mock_api_client.generate_text.assert_called_once()
 
-    @patch("server.model")                  # was "server.ModelInference"
+    @patch("server.model")  # was "server.ModelInference"
     def test_chat_with_watsonx_api_error(self, mock_model_inference):
         """Test error handling in chat function"""
         # Arrange
@@ -50,7 +50,7 @@ class TestWatsonxMCPServer:
         # Assert
         assert "Error generating response: API Error" in response
 
-    @patch("server.model")                  # was "server.ModelInference"
+    @patch("server.model")  # was "server.ModelInference"
     def test_analyze_medical_symptoms(self, mock_model_inference):
         """Test medical symptom analysis"""
         # Arrange
@@ -123,7 +123,7 @@ class TestWatsonxMCPServer:
         assert "health educator" in prompt.lower()
         assert "prevention" in prompt.lower()
 
-    @patch("server.model")                  # was "server.ModelInference"
+    @patch("server.model")  # was "server.ModelInference"
     def test_get_conversation_summary_empty(self, mock_model_inference):
         """Test conversation summary with empty history"""
         # Arrange - clear any existing history
@@ -135,7 +135,7 @@ class TestWatsonxMCPServer:
         # Assert
         assert summary == "No conversation history available."
 
-    @patch("server.model")                  # was "server.ModelInference"
+    @patch("server.model")  # was "server.ModelInference"
     def test_get_conversation_summary_with_history(self, mock_model_inference):
         """Test conversation summary with existing history"""
         # Arrange
