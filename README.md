@@ -210,12 +210,8 @@ Cleanup:
   ```bash
   make test
   ```
+![](assets/2025-07-12-20-12-17.png)
 
-* **Code coverage**
-
-  ```bash
-  pytest --cov=.
-  ```
 
 * **Pre-commit hooks**
 
