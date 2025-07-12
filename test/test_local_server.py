@@ -1,17 +1,16 @@
 # test/test_local_server.py
 import sys
 from pathlib import Path
+import os  # noqa: E402
+import server  # noqa: E402
 
 # Setup project path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # Set environment variables before importing
-import os
 os.environ['WATSONX_APIKEY'] = 'dummy_api_key_for_testing'
 os.environ['PROJECT_ID'] = 'dummy_project_id_for_testing'
-
-import server
 
 
 def test_server_imports():
