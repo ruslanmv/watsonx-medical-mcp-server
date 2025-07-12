@@ -20,7 +20,7 @@ from unittest.mock import MagicMock
 load_dotenv()
 
 # Configuration
-MODE = os.getenv("WATSONX_MODE", "mock").lower()
+MODE = os.getenv("WATSONX_MODE", "live").lower()
 API_KEY = os.getenv("WATSONX_APIKEY")
 URL = os.getenv("WATSONX_URL", "https://us-south.ml.cloud.ibm.com")
 PROJECT_ID = os.getenv("PROJECT_ID")
@@ -397,5 +397,7 @@ if __name__ == "__main__":
 
     # Run the MCP server
     mcp.run()
+    # listen on localhost:8000 over HTTP
+    # mcp.run(transport="http", host="127.0.0.1", port=8000)
 
 # (blank line added above to satisfy W292)
