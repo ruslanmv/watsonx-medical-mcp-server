@@ -276,7 +276,7 @@ class MCPWebClient:
 
 def run_event_loop():
     """Run the asyncio event loop in a background thread."""
-    global event_loop
+    global event_loop  # noqa: F824
     event_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(event_loop)
     event_loop.run_forever()
@@ -284,7 +284,7 @@ def run_event_loop():
 
 async def initialize_mcp_client():
     """Initialize the global MCP client."""
-    global global_client
+    global global_client  # noqa: F824
     global_client = MCPWebClient()
 
     # Try to connect with retries
@@ -332,7 +332,7 @@ def start_background_services():
 
 def stop_background_services():
     """Stop the background services and close MCP client."""
-    global global_client, event_loop, background_thread
+    global global_client, event_loop, background_thread  # noqa: F824
 
     if global_client and event_loop:
         try:
@@ -357,7 +357,7 @@ def call_mcp_action(action: str, **kwargs):
     """
     Thread-safe wrapper to call MCP actions using the persistent connection.
     """
-    global global_client, event_loop, client_lock
+    global global_client, event_loop, client_lock  # noqa: F824
 
     if not global_client or not event_loop:
         return None, "MCP client not initialized"
@@ -763,7 +763,7 @@ def help_page():
 @app.route("/health")
 def health_check():
     """Health check endpoint to verify MCP connection status."""
-    global global_client
+    global global_client  # noqa: F824
 
     if global_client and global_client.connected:
         return (
