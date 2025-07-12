@@ -276,7 +276,7 @@ class MCPWebClient:
 
 def run_event_loop():
     """Run the asyncio event loop in a background thread."""
-    global event_loop  # noqa: F824
+    global event_loop
     event_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(event_loop)
     event_loop.run_forever()
