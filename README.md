@@ -21,6 +21,9 @@
 * **Unit tests** with pytest—CI-ready
 * Fully containerised with a lightweight Dockerfile
 
+
+![](docs/assets/2025-07-12-19-24-06.png)
+
 ---
 
 ## 📦 Project Structure
@@ -34,8 +37,8 @@ watsonx-medical-mcp-server/
 ├── .env.example              # Copy to .env and set creds
 ├── test/
 │   └── test_server.py        # Simple smoke test
-├── assets/
-│   └── 2025-06-30-22-15-29.png
+├── docs/
+│   └── README.md             # Simple user usage of frontend
 └── README.md                 # You are here
 ```
 
@@ -113,6 +116,27 @@ Getting the server running locally is straightforward. This project requires **P
     ```
 
     This command will send a test query to your running server and verify the connection.
+
+7.  **Run the Chatbot Application:**
+    In a second terminal, run the client application which provides the user interface.
+    
+    ```bash
+    python chatbot.py
+    ```
+   ![](./docs/assets/2025-07-12-19-17-12.png)
+
+8.  **Chatbot CLI Application:**
+    Or if you want something in the terminal  run the client application via Terminal
+   
+    ```bash
+    python chatbot-cli.py
+    ```    
+
+   ![](./docs/assets/2025-07-12-14-46-47.png)
+   
+   For more information click [here](./docs/README.md)
+
+
 
 -----
 
