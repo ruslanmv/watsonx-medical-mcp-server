@@ -1,82 +1,129 @@
 # test/test_server.py
-
 import sys
-from pathlib import Path
 import os
 import pytest
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# --- Setup ---
-
-# 1. Add the project root to the Python path to allow imports
+# Setup project path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-# 2. Set dummy environment variables BEFORE importing the server.
-# This is crucial to prevent 'server.py' from raising an error on import
-# because it can't find the required variables.
+# Set environment variables before importing server
 os.environ['WATSONX_APIKEY'] = 'dummy_api_key_for_testing'
 os.environ['PROJECT_ID'] = 'dummy_project_id_for_testing'
 
-# 3. Now it's safe to import the server module
+# Import server after setting environment variables
 import server
 
-# --- Tests ---
 
-# The @patch decorator intercepts calls to create a ModelInference instance
-# and replaces it with our mock object for the duration of the test.
-@patch('server.ModelInference')
-def test_chat_with_watsonx_success(mock_model_inference):
-    """
-    GIVEN a user query
-    WHEN the 'chat_with_watsonx' tool is called
-    THEN it should return a mocked successful response from the API
-    """
-    # Arrange: Configure the mock to simulate a successful API call
-    mock_api_client = MagicMock()
-    mock_api_client.generate_text.return_value = {
-        "results": [{"generated_text": "This is a successful mock response."}]
-    }
-    mock_model_inference.return_value = mock_api_client
+class TestWatsonxMCPServer:
+    """Test suite for Watsonx Medical MCP Server"""
 
-    # Act: Call the function we want to test
-    query = "What is a mock test?"
-    response = server.chat_with_watsonx(query)
+    @patch('server.ModelInference')
+    def test_chat_with_watsonx_success(self, mock_model_inference):
+        """Test successful chat response"""
+        # Arrange
+        mock_api_client = MagicMock()
+        mock_api_client.generate_text.return_value = {
+            "results": [{"generated_text": "Test response from watsonx"}]
+        }
+        mock_model_inference.return_value = mock_api_client
 
-    # Assert: Check that the function returned the expected text
-    assert response == "This is a successful mock response."
-    mock_api_client.generate_text.assert_called_once()
+        # Act
+        response = server.chat_with_watsonx("What is a test?")
 
+        # Assert
+        assert response == "Test response from watsonx"
+        mock_api_client.generate_text.assert_called_once()
 
-@patch('server.ModelInference')
-def test_chat_with_watsonx_api_error(mock_model_inference):
-    """
-    GIVEN a user query
-    WHEN the Watsonx API call fails
-    THEN the 'chat_with_watsonx' tool should handle the error gracefully
-    """
-    # Arrange: Configure the mock to raise an error when called
-    mock_api_client = MagicMock()
-    mock_api_client.generate_text.side_effect = Exception("API Connection Failed")
-    mock_model_inference.return_value = mock_api_client
+    @patch('server.ModelInference')
+    def test_chat_with_watsonx_api_error(self, mock_model_inference):
+        """Test error handling in chat function"""
+        # Arrange
+        mock_api_client = MagicMock()
+        mock_api_client.generate_text.side_effect = Exception("API Error")
+        mock_model_inference.return_value = mock_api_client
 
-    # Act: Call the function
-    query = "This query will trigger a failure."
-    response = server.chat_with_watsonx(query)
+        # Act
+        response = server.chat_with_watsonx("This will fail")
 
-    # Assert: Check that our error handling logic returned the correct message
-    assert "Error generating response: API Connection Failed" in response
+        # Assert
+        assert "Error generating response: API Error" in response
 
-def test_get_server_info_resource():
-    """
-    GIVEN the server is running
-    WHEN the 'get_server_info' resource is requested
-    THEN it should return a non-empty string containing server details
-    """
-    # Act
-    info_string = server.get_server_info()
+    @patch('server.ModelInference')
+    def test_analyze_medical_symptoms(self, mock_model_inference):
+        """Test medical symptom analysis"""
+        # Arrange
+        mock_api_client = MagicMock()
+        mock_api_client.generate_text.return_value = {
+            "results": [{"generated_text": "Medical analysis result"}]
+        }
+        mock_model_inference.return_value = mock_api_client
 
-    # Assert
-    assert isinstance(info_string, str)
-    assert server.SERVER_NAME in info_string
-    assert "Available Tools:" in info_string
+        # Act
+        response = server.analyze_medical_symptoms(
+            "headache and fever", 
+            patient_age=30, 
+            patient_gender="female"
+        )
+
+        # Assert
+        assert response == "Medical analysis result"
+        mock_api_client.generate_text.assert_called_once()
+
+    def test_get_server_info_resource(self):
+        """Test server info resource"""
+        # Act
+        info = server.get_server_info()
+
+        # Assert
+        assert isinstance(info, str)
+        assert server.SERVER_NAME in info
+        assert "Available Tools:" in info
+
+    def test_clear_conversation_history(self):
+        """Test conversation history clearing"""
+        # Arrange - add some history first
+        server.conversation_history.append({"role": "user", "content": "test"})
+        
+        # Act
+        result = server.clear_conversation_history()
+        
+        # Assert
+        assert len(server.conversation_history) == 0
+        assert "cleared" in result.lower()
+
+    def test_get_patient_greeting(self):
+        """Test patient greeting resource"""
+        # Act
+        greeting = server.get_patient_greeting("John")
+        
+        # Assert
+        assert "John" in greeting
+        assert "medical assistant" in greeting.lower()
+
+    def test_medical_consultation_prompt(self):
+        """Test medical consultation prompt generation"""
+        # Act
+        prompt = server.medical_consultation_prompt(
+            "headache", 
+            duration="2 days", 
+            severity="moderate"
+        )
+        
+        # Assert
+        assert "headache" in prompt
+        assert "2 days" in prompt
+        assert "moderate" in prompt
+        assert "medical assistant" in prompt.lower()
+
+    def test_health_education_prompt(self):
+        """Test health education prompt generation"""
+        # Act
+        prompt = server.health_education_prompt("diabetes")
+        
+        # Assert
+        assert "diabetes" in prompt
+        assert "health educator" in prompt.lower()
+        assert "prevention" in prompt.lower()

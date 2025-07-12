@@ -62,13 +62,13 @@ help:
 	@echo "Cleanup:"
 	@echo "  clean          - Remove the virtual environment and cache files."
 
-
 # This rule uses a stamp file to avoid reinstalling dependencies if they are already up-to-date.
 # It only runs if 'requirements.txt' is newer than the stamp file or if the stamp file doesn't exist.
 $(STAMP): requirements.txt
 	@echo "📦 Installing/updating dependencies..."
 	@$(PYTHON_VENV) -m pip install --upgrade pip
 	@$(PYTHON_VENV) -m pip install --no-cache-dir -r requirements.txt
+	@$(PYTHON_VENV) -m pip install --no-cache-dir flake8 black pytest
 	@touch $(STAMP)
 	@echo "✅ Dependencies are up to date."
 
@@ -126,7 +126,7 @@ check-format: setup
 # Run pytest on the test suite
 test: setup
 	@echo "🧪 Running tests..."
-	@$(PYTHON_VENV) -m pytest -q test/test_server.py
+	@WATSONX_APIKEY=dummy_api_key_for_testing PROJECT_ID=dummy_project_id_for_testing $(PYTHON_VENV) -m pytest -v test/
 
 # Composite target to run all checks
 check: lint check-format test
@@ -156,4 +156,6 @@ docker-run:
 clean:
 	@echo "🧹 Removing virtual environment and cache files..."
 	@rm -rf $(VENV) .pytest_cache .mypy_cache __pycache__ **/__pycache__
+	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
 	@echo "✅ Cleanup complete."
