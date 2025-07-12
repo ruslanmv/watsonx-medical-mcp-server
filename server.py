@@ -25,21 +25,15 @@ SERVER_NAME = os.getenv("MCP_SERVER_NAME", "Watsonx Medical Assistant")
 SERVER_VERSION = os.getenv("MCP_SERVER_VERSION", "1.0.0")
 
 # Validate required environment variables
-required_vars = {
-    "WATSONX_APIKEY": API_KEY,
-    "PROJECT_ID": PROJECT_ID
-}
+required_vars = {"WATSONX_APIKEY": API_KEY, "PROJECT_ID": PROJECT_ID}
 
 for var_name, var_value in required_vars.items():
     if not var_value:
-        raise RuntimeError(
-            f"{var_name} is not set. Please add it to your .env file."
-        )
+        raise RuntimeError(f"{var_name} is not set. Please add it to your .env file.")
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -50,14 +44,10 @@ try:
 
     # Initialize the inference model
     model = ModelInference(
-        model_id=MODEL_ID,
-        credentials=credentials,
-        project_id=PROJECT_ID
+        model_id=MODEL_ID, credentials=credentials, project_id=PROJECT_ID
     )
 
-    logger.info(
-        f"Initialized watsonx.ai model '{MODEL_ID}' for project '{PROJECT_ID}'"
-    )
+    logger.info(f"Initialized watsonx.ai model '{MODEL_ID}' for project '{PROJECT_ID}'")
 
 except Exception as e:
     logger.error(f"Failed to initialize watsonx.ai client: {e}")
@@ -92,10 +82,12 @@ def chat_with_watsonx(
         conversation_history.append({"role": "user", "content": query})
 
         # Build context from conversation history
-        context = "\n".join([
-            f"{'User' if msg['role'] == 'user' else 'Assistant'}: {msg['content']}"
-            for msg in conversation_history[-10:]  # Keep last 10 messages
-        ])
+        context = "\n".join(
+            [
+                f"{'User' if msg['role'] == 'user' else 'Assistant'}: {msg['content']}"
+                for msg in conversation_history[-10:]  # Keep last 10 messages
+            ]
+        )
 
         # Define generation parameters
         params = {
@@ -110,7 +102,7 @@ def chat_with_watsonx(
         response = model.generate_text(
             prompt=f"Context:\n{context}\n\nPlease provide a helpful and accurate response:",
             params=params,
-            raw_response=True
+            raw_response=True,
         )
 
         # Extract generated text
@@ -132,7 +124,7 @@ def chat_with_watsonx(
 def analyze_medical_symptoms(
     symptoms: str,
     patient_age: Optional[int] = None,
-    patient_gender: Optional[str] = None
+    patient_gender: Optional[str] = None,
 ) -> str:
     """
     Analyze medical symptoms and provide preliminary assessment
@@ -178,9 +170,7 @@ def analyze_medical_symptoms(
         }
 
         response = model.generate_text(
-            prompt=medical_prompt,
-            params=params,
-            raw_response=True
+            prompt=medical_prompt, params=params, raw_response=True
         )
 
         analysis = response["results"][0]["generated_text"].strip()
@@ -219,10 +209,12 @@ def get_conversation_summary() -> str:
 
     try:
         # Create summary prompt
-        history_text = "\n".join([
-            f"{'User' if msg['role'] == 'user' else 'Assistant'}: {msg['content']}"
-            for msg in conversation_history
-        ])
+        history_text = "\n".join(
+            [
+                f"{'User' if msg['role'] == 'user' else 'Assistant'}: {msg['content']}"
+                for msg in conversation_history
+            ]
+        )
 
         summary_prompt = f"""
         Please provide a concise summary of the following conversation:
@@ -242,9 +234,7 @@ def get_conversation_summary() -> str:
         }
 
         response = model.generate_text(
-            prompt=summary_prompt,
-            params=params,
-            raw_response=True
+            prompt=summary_prompt, params=params, raw_response=True
         )
 
         summary = response["results"][0]["generated_text"].strip()

@@ -9,8 +9,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # Set environment variables before importing server
-os.environ['WATSONX_APIKEY'] = 'dummy_api_key_for_testing'
-os.environ['PROJECT_ID'] = 'dummy_project_id_for_testing'
+os.environ["WATSONX_APIKEY"] = "dummy_api_key_for_testing"
+os.environ["PROJECT_ID"] = "dummy_project_id_for_testing"
 
 # Import server after setting environment variables
 import server  # noqa: E402
@@ -19,7 +19,7 @@ import server  # noqa: E402
 class TestWatsonxMCPServer:
     """Test suite for Watsonx Medical MCP Server"""
 
-    @patch('server.ModelInference')
+    @patch("server.ModelInference")
     def test_chat_with_watsonx_success(self, mock_model_inference):
         """Test successful chat response"""
         # Arrange
@@ -36,7 +36,7 @@ class TestWatsonxMCPServer:
         assert response == "Test response from watsonx"
         mock_api_client.generate_text.assert_called_once()
 
-    @patch('server.ModelInference')
+    @patch("server.ModelInference")
     def test_chat_with_watsonx_api_error(self, mock_model_inference):
         """Test error handling in chat function"""
         # Arrange
@@ -50,7 +50,7 @@ class TestWatsonxMCPServer:
         # Assert
         assert "Error generating response: API Error" in response
 
-    @patch('server.ModelInference')
+    @patch("server.ModelInference")
     def test_analyze_medical_symptoms(self, mock_model_inference):
         """Test medical symptom analysis"""
         # Arrange
@@ -62,9 +62,7 @@ class TestWatsonxMCPServer:
 
         # Act
         response = server.analyze_medical_symptoms(
-            "headache and fever",
-            patient_age=30,
-            patient_gender="female"
+            "headache and fever", patient_age=30, patient_gender="female"
         )
 
         # Assert
@@ -106,9 +104,7 @@ class TestWatsonxMCPServer:
         """Test medical consultation prompt generation"""
         # Act
         prompt = server.medical_consultation_prompt(
-            "headache",
-            duration="2 days",
-            severity="moderate"
+            "headache", duration="2 days", severity="moderate"
         )
 
         # Assert
@@ -127,7 +123,7 @@ class TestWatsonxMCPServer:
         assert "health educator" in prompt.lower()
         assert "prevention" in prompt.lower()
 
-    @patch('server.ModelInference')
+    @patch("server.ModelInference")
     def test_get_conversation_summary_empty(self, mock_model_inference):
         """Test conversation summary with empty history"""
         # Arrange - clear any existing history
@@ -139,7 +135,7 @@ class TestWatsonxMCPServer:
         # Assert
         assert summary == "No conversation history available."
 
-    @patch('server.ModelInference')
+    @patch("server.ModelInference")
     def test_get_conversation_summary_with_history(self, mock_model_inference):
         """Test conversation summary with existing history"""
         # Arrange
@@ -168,5 +164,6 @@ class TestWatsonxMCPServer:
         assert server.SERVER_VERSION is not None
         assert server.MODEL_ID is not None
         assert isinstance(server.conversation_history, list)
+
 
 # (blank line added above to satisfy W292)
