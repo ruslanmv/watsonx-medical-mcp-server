@@ -3,13 +3,15 @@
 """
 Slow integration tests that hit the real IBM watsonx.ai endpoint.
 
-To run them locally or on CI you MUST have a `.env` file at your project root containing:
+To run them locally or on CI you MUST set in your `.env` at project root:
 
     WATSONX_APIKEY=<your-api-key>
     PROJECT_ID=<your-project-uuid>
-    # Optional (will fall back to defaults if omitted):
-    # WATSONX_URL=<your-service-url>           # e.g. https://us-south.ml.cloud.ibm.com
-    # MODEL_ID=<your-model-id>                  # e.g. meta-llama/llama-3-2-90b-vision-instruct
+    RUN_WATSONX_LIVE_TESTS=true
+
+Optionally:
+    WATSONX_URL=<your-service-url>         # e.g. https://us-south.ml.cloud.ibm.com
+    MODEL_ID=<your-model-id>               # e.g. meta-llama/llama-3-2-90b-vision-instruct
 """
 
 import os
@@ -23,32 +25,35 @@ import pytest
 load_dotenv()
 
 # ---------------------------------------------------------------------------
-# Only require API key and project ID; URL and MODEL_ID will use defaults
+# Decide whether to run live tests
 # ---------------------------------------------------------------------------
 REQUIRED_VARS = ("WATSONX_APIKEY", "PROJECT_ID")
-missing_creds = not all(os.getenv(v) for v in REQUIRED_VARS)
+creds_present = all(os.getenv(v) for v in REQUIRED_VARS)
+opted_in = os.getenv("RUN_WATSONX_LIVE_TESTS", "false").lower() == "true"
 
 if __name__ != "__main__":
-    # Running under pytest → skip tests if creds missing
-    if missing_creds:
+    # Under pytest: skip entire module if not both opted-in AND creds present
+    if not (creds_present and opted_in):
         pytest.skip(
-            "Live watsonx tests skipped – please set WATSONX_APIKEY and PROJECT_ID in .env",
+            "Live watsonx tests skipped – set RUN_WATSONX_LIVE_TESTS=true "
+            "and provide WATSONX_APIKEY and PROJECT_ID in .env",
             allow_module_level=True,
         )
 else:
-    # Direct `python test_local.py` → print message and exit if creds missing
-    if missing_creds:
+    # Direct `python test_local.py`: friendly message and exit if skipping
+    if not (creds_present and opted_in):
         print(
-            "Live watsonx tests skipped – please set WATSONX_APIKEY and PROJECT_ID in .env"
+            "Live watsonx tests skipped – set RUN_WATSONX_LIVE_TESTS=true "
+            "and provide WATSONX_APIKEY and PROJECT_ID in .env"
         )
         sys.exit(0)
 
 # ---------------------------------------------------------------------------
-# Ensure live mode before importing the server
+# Now safe to import and run against the real server
 # ---------------------------------------------------------------------------
 os.environ.setdefault("WATSONX_MODE", "live")
 
-# Make sure we import server.py from the project root
+# Ensure we import server.py from project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -83,5 +88,5 @@ def test_live_analyze_medical_symptoms():
 
 
 if __name__ == "__main__":
-    # Credentials are present → run pytest on this file
+    # Credentials present & opted-in → run pytest on this file
     sys.exit(pytest.main([__file__]))
