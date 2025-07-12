@@ -1,11 +1,10 @@
-# test_client.py
+# test/test_client.py
 
 import asyncio
 import json
 import sys
-from typing import Dict, Any, Optional
-import subprocess
-from contextlib import asynccontextmanager
+import os
+from typing import Dict, Any
 
 
 class MCPClient:
@@ -113,8 +112,13 @@ async def main():
     client = MCPClient()
 
     try:
-        # Connect to your server (adjust the command as needed)
-        await client.connect(["python", "server.py"])
+        # Determine the path to server.py in the project root
+        script_dir = os.path.dirname(__file__)  # test/
+        root_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
+        server_path = os.path.join(root_dir, "server.py")
+
+        # Use the same Python interpreter
+        await client.connect([sys.executable, server_path])
 
         print("Connected to MCP server!")
 
