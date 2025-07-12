@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Watsonx Medical Assistant{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Watsonx Medical Assistant - AI-powered health information and symptom analysis">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    /* Fallback background pattern if gradient isn't supported */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
+      z-index: -1;
+    }
+    
+    /* Content wrapper */
+    .content-wrapper {
+       flex-grow: 1;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       width: 100%;
+       padding: 1rem;
+       min-height: 0; /* Allow shrinking */
+    }
+    
+    /* Medical theme colors */
+    .medical-gradient {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    /* Smooth transitions */
+    * {
+      transition: all 0.2s ease-in-out;
+    }
+    
+    /* Custom scrollbar for webkit browsers */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.3);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0,0,0,0.5);
+    }
+    
+    /* Loading animation */
+    .loading-dots {
+      display: inline-block;
+    }
+    
+    .loading-dots::after {
+      content: '';
+      animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+      0% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+      100% { content: ''; }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .content-wrapper {
+        padding: 0.5rem;
+      }
+    }
+    
+    /* Focus styles for accessibility */
+    button:focus,
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid #4facfe;
+      outline-offset: 2px;
+    }
+    
+    /* Print styles */
+    @media print {
+      body {
+        background: white !important;
+      }
+      .content-wrapper {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-900">
+  <!-- Loading indicator (hidden by default) -->
+  <div id="loading-indicator" class="fixed top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 hidden">
+    <span class="loading-dots">Processing</span>
+  </div>
+  
+  <!-- Main content wrapper -->
+  <div class="content-wrapper">
+    {% block content %}{% endblock %}
+  </div>
+  
+  <!-- Footer (optional) -->
+  <footer class="text-center text-white text-xs py-2 bg-black bg-opacity-20">
+    <p>&copy; 2024 {{ app_name or 'Watsonx Medical Assistant' }} v{{ version or '1.0.0' }} | 
+       <span class="text-yellow-300">⚠️ For informational purposes only - Consult healthcare professionals</span>
+    </p>
+  </footer>
+  
+  <!-- Global JavaScript -->
+  <script>
+    // Auto-scroll to bottom of chat window
+    function scrollToBottom() {
+      const chatbox = document.getElementById('chatbox');
+      if (chatbox) {
+        chatbox.scrollTop = chatbox.scrollHeight;
+      }
+    }
+    
+    // Smooth scroll to bottom
+    function smoothScrollToBottom() {
+      const chatbox = document.getElementById('chatbox');
+      if (chatbox) {
+        chatbox.scrollTo({
+          top: chatbox.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }
+    
+    // Show loading indicator
+    function showLoading() {
+      const indicator = document.getElementById('loading-indicator');
+      if (indicator) {
+        indicator.classList.remove('hidden');
+      }
+    }
+    
+    // Hide loading indicator
+    function hideLoading() {
+      const indicator = document.getElementById('loading-indicator');
+      if (indicator) {
+        indicator.classList.add('hidden');
+      }
+    }
+    
+    // Form submission handler with loading
+    function handleFormSubmit(form) {
+      showLoading();
+      // Hide loading after a delay if form doesn't redirect
+      setTimeout(hideLoading, 5000);
+    }
+    
+    // Initialize on page load
+    window.addEventListener('load', function() {
+      scrollToBottom();
+      hideLoading();
+      
+      // Add loading handlers to forms
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+        form.addEventListener('submit', function() {
+          handleFormSubmit(this);
+        });
+      });
+      
+      // Auto-focus on message input if present
+      const messageInput = document.querySelector('input[name="message"]');
+      if (messageInput) {
+        messageInput.focus();
+      }
+    });
+    
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        // Page became visible, scroll to bottom
+        setTimeout(scrollToBottom, 100);
+      }
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl/Cmd + Enter to submit form
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        const activeForm = document.querySelector('form');
+        if (activeForm) {
+          activeForm.submit();
+        }
+      }
+      
+      // Escape to clear focus
+      if (e.key === 'Escape') {
+        document.activeElement.blur();
+      }
+    });
+    
+    // Auto-resize textareas
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+    
+    // Apply auto-resize to textareas
+    document.addEventListener('input', function(e) {
+      if (e.target.tagName === 'TEXTAREA') {
+        autoResize(e.target);
+      }
+    });
+    
+    // Error handling for images
+    document.addEventListener('error', function(e) {
+      if (e.target.tagName === 'IMG') {
+        e.target.style.display = 'none';
+        console.log('Image failed to load:', e.target.src);
+      }
+    }, true);
+    
+    // Simple analytics (page view tracking)
+    if (typeof gtag !== 'undefined') {
+      gtag('config', 'GA_MEASUREMENT_ID', {
+        page_title: document.title,
+        page_location: window.location.href
+      });
+    }
+    
+    // Service worker registration (for PWA capabilities)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('ServiceWorker registration successful');
+          })
+          .catch(function(err) {
+            console.log('ServiceWorker registration failed');
+          });
+      });
+    }
+    
+    // Notification permission request
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+    
+    // Call after user interaction
+    document.addEventListener('click', requestNotificationPermission, { once: true });
+  </script>
+  
+  <!-- Additional scripts can be added by child templates -->
+  {% block scripts %}{% endblock %}
+</body>
+</html>
