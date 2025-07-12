@@ -1,23 +1,26 @@
-# test/test_server.py
+# test/test_local_server.py
 import sys
-import os
 from pathlib import Path
 
-# Ensure project root is on PYTHONPATH
+# Setup project path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from dotenv import load_dotenv
+# Set environment variables before importing
+import os
+os.environ['WATSONX_APIKEY'] = 'dummy_api_key_for_testing'
+os.environ['PROJECT_ID'] = 'dummy_project_id_for_testing'
+
 import server
 
-# Load environment variables from .env at project root
-load_dotenv(dotenv_path=PROJECT_ROOT / '.env')
 
-if __name__ == "__main__":
-    query = "What is IBM Cloud?"
-    print(f"▶ Sending query: {query}\n")
-    try:
-        response = server.chat(query)
-        print(f"💬 Response: {response}")
-    except Exception as e:
-        print(f"❌ Error during chat(): {e}")
+def test_server_imports():
+    """Test that server module imports correctly"""
+    assert hasattr(server, 'mcp')
+    assert hasattr(server, 'SERVER_NAME')
+    assert hasattr(server, 'conversation_history')
+
+
+def test_server_name_configuration():
+    """Test server name is properly configured"""
+    assert server.SERVER_NAME == "Watsonx Medical Assistant"

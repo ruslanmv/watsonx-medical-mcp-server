@@ -1,7 +1,6 @@
 # test/test_server.py
 import sys
 import os
-import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
@@ -63,8 +62,8 @@ class TestWatsonxMCPServer:
 
         # Act
         response = server.analyze_medical_symptoms(
-            "headache and fever", 
-            patient_age=30, 
+            "headache and fever",
+            patient_age=30,
             patient_gender="female"
         )
 
@@ -86,10 +85,10 @@ class TestWatsonxMCPServer:
         """Test conversation history clearing"""
         # Arrange - add some history first
         server.conversation_history.append({"role": "user", "content": "test"})
-        
+
         # Act
         result = server.clear_conversation_history()
-        
+
         # Assert
         assert len(server.conversation_history) == 0
         assert "cleared" in result.lower()
@@ -98,7 +97,7 @@ class TestWatsonxMCPServer:
         """Test patient greeting resource"""
         # Act
         greeting = server.get_patient_greeting("John")
-        
+
         # Assert
         assert "John" in greeting
         assert "medical assistant" in greeting.lower()
@@ -107,11 +106,11 @@ class TestWatsonxMCPServer:
         """Test medical consultation prompt generation"""
         # Act
         prompt = server.medical_consultation_prompt(
-            "headache", 
-            duration="2 days", 
+            "headache",
+            duration="2 days",
             severity="moderate"
         )
-        
+
         # Assert
         assert "headache" in prompt
         assert "2 days" in prompt
@@ -122,8 +121,50 @@ class TestWatsonxMCPServer:
         """Test health education prompt generation"""
         # Act
         prompt = server.health_education_prompt("diabetes")
-        
+
         # Assert
         assert "diabetes" in prompt
         assert "health educator" in prompt.lower()
         assert "prevention" in prompt.lower()
+
+    @patch('server.ModelInference')
+    def test_get_conversation_summary_empty(self, mock_model_inference):
+        """Test conversation summary with empty history"""
+        # Arrange - clear any existing history
+        server.conversation_history.clear()
+
+        # Act
+        summary = server.get_conversation_summary()
+
+        # Assert
+        assert summary == "No conversation history available."
+
+    @patch('server.ModelInference')
+    def test_get_conversation_summary_with_history(self, mock_model_inference):
+        """Test conversation summary with existing history"""
+        # Arrange
+        mock_api_client = MagicMock()
+        mock_api_client.generate_text.return_value = {
+            "results": [{"generated_text": "Summary of conversation"}]
+        }
+        mock_model_inference.return_value = mock_api_client
+
+        # Add some conversation history
+        server.conversation_history.clear()
+        server.conversation_history.append({"role": "user", "content": "Hello"})
+        server.conversation_history.append({"role": "assistant", "content": "Hi there"})
+
+        # Act
+        summary = server.get_conversation_summary()
+
+        # Assert
+        assert summary == "Summary of conversation"
+        mock_api_client.generate_text.assert_called_once()
+
+    def test_server_configuration(self):
+        """Test server configuration values"""
+        # Assert
+        assert server.SERVER_NAME is not None
+        assert server.SERVER_VERSION is not None
+        assert server.MODEL_ID is not None
+        assert isinstance(server.conversation_history, list)
