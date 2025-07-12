@@ -13,7 +13,7 @@ os.environ['WATSONX_APIKEY'] = 'dummy_api_key_for_testing'
 os.environ['PROJECT_ID'] = 'dummy_project_id_for_testing'
 
 # Import server after setting environment variables
-import server
+import server  # noqa: E402
 
 
 class TestWatsonxMCPServer:
@@ -168,3 +168,5 @@ class TestWatsonxMCPServer:
         assert server.SERVER_VERSION is not None
         assert server.MODEL_ID is not None
         assert isinstance(server.conversation_history, list)
+
+# (blank line added above to satisfy W292)
