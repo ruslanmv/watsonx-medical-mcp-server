@@ -9,6 +9,7 @@ backend.py – persistent MCP client with safe, serialised I/O
 
 Set BACKEND_LOG_LEVEL=DEBUG for verbose traces.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -27,6 +28,7 @@ logging.basicConfig(
     format="%(asctime)s [Backend] %(levelname)s: %(message)s",
 )
 logger = logging.getLogger("backend")
+
 
 # ─────────────────────────── MCP JSON-RPC client ──────────────────────────
 class MCPWebClient:
@@ -95,9 +97,7 @@ class MCPWebClient:
             }
 
             assert (
-                self.process
-                and self.process.stdin
-                and self.process.stdout
+                self.process and self.process.stdin and self.process.stdout
             ), "MCP process not connected"
 
             logger.debug("→ %s %s", method, params)
@@ -230,9 +230,7 @@ async def _ensure_connected() -> None:
 
 
 # ───────────────────── internal dispatcher (runs on loop) ──────────────────
-async def _async_dispatch(
-    action: str, **kwargs
-) -> Tuple[Optional[str], Optional[str]]:
+async def _async_dispatch(action: str, **kwargs) -> Tuple[Optional[str], Optional[str]]:
     await _ensure_connected()
 
     if action == "chat":
@@ -278,9 +276,7 @@ async def _async_dispatch(
 
 
 # ───────────────────── synchronous facade for Flask ────────────────────────
-def get_mcp_response(
-    action: str, **kwargs
-) -> Tuple[Optional[str], Optional[str]]:
+def get_mcp_response(action: str, **kwargs) -> Tuple[Optional[str], Optional[str]]:
     """
     Called by Flask (sync context).  Schedules a coroutine on the background
     event-loop and blocks until the result is ready.

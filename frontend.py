@@ -23,8 +23,8 @@ from flask import (
     url_for,
 )
 
-#Markdown support
-import markdown              # pip install markdown
+# Markdown support
+import markdown  # pip install markdown
 from markupsafe import Markup
 
 
@@ -49,7 +49,7 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-replace-me")
 
 MAX_HISTORY_CHARS = 4_000  # ~1000 tokens, adjust if needed
 
-#Markdown support
+# Markdown support
 # ONE-LINE FILTER ⤵
 app.jinja_env.filters["md"] = lambda text: Markup(
     markdown.markdown(text, extensions=["fenced_code"])
@@ -142,7 +142,9 @@ def get_summary():
     summary, error = get_mcp_response("get_summary")
 
     if error:
-        session["history"].append({"role": "error", "content": f"Summary error: {error}"})
+        session["history"].append(
+            {"role": "error", "content": f"Summary error: {error}"}
+        )
     else:
         content = (
             f"📋 **Conversation Summary:**\n\n{summary}"
@@ -205,7 +207,9 @@ def server_info():
     info, error = get_mcp_response("get_server_info")
 
     if error:
-        session["history"].append({"role": "error", "content": f"Server info error: {error}"})
+        session["history"].append(
+            {"role": "error", "content": f"Server info error: {error}"}
+        )
     else:
         content = (
             f"ℹ️ **Server Information:**\n\n{info}"
@@ -225,7 +229,9 @@ def get_greeting(name: str):
     greeting, error = get_mcp_response("get_greeting", name=name)
 
     if error:
-        session["history"].append({"role": "error", "content": f"Greeting error: {error}"})
+        session["history"].append(
+            {"role": "error", "content": f"Greeting error: {error}"}
+        )
     else:
         content = (
             f"👋 {greeting}"
@@ -325,7 +331,9 @@ def not_found_error(error):  # noqa: ANN001
 @app.errorhandler(500)
 def internal_error(error):  # noqa: ANN001
     return (
-        render_template("error.html", error_code=500, error_message="Internal server error"),
+        render_template(
+            "error.html", error_code=500, error_message="Internal server error"
+        ),
         500,
     )
 
