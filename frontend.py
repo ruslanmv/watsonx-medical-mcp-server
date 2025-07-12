@@ -292,22 +292,23 @@ def api_analyze():
 def help_page():
     """Static help text dropped into the chat history."""
     session.setdefault("history", [])
+    # Whitespace has been removed from the end of the lines below
     help_text = """
 🤖 **Watsonx Medical Assistant Help**
 
 **Available Features:**
-• **General Chat**: Ask me any health-related questions  
-• **Symptom Analysis**: Get preliminary medical assessments  
-• **Health Information**: Learn about conditions and treatments  
+• **General Chat**: Ask me any health-related questions
+• **Symptom Analysis**: Get preliminary medical assessments
+• **Health Information**: Learn about conditions and treatments
 
 **How to Use:**
-• **Regular Chat**: Just type your question normally  
-• **Symptom Analysis**: Type "symptoms: [your symptoms]" or use the dedicated form  
-• **Clear History**: Click "Clear Chat" to start fresh  
-• **Get Summary**: Click "Summary" for a quick recap  
+• **Regular Chat**: Just type your question normally
+• **Symptom Analysis**: Type "symptoms: [your symptoms]" or use the dedicated form
+• **Clear History**: Click "Clear Chat" to start fresh
+• **Get Summary**: Click "Summary" for a quick recap
 
-⚠️  This assistant provides *general* information only.  
-⚠️  Always consult healthcare professionals for medical advice.  
+⚠️  This assistant provides *general* information only.
+⚠️  Always consult healthcare professionals for medical advice.
 ⚠️  In emergencies, contact emergency services immediately.
     """
     session["history"].append({"role": "assistant", "content": help_text})
