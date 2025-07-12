@@ -49,90 +49,104 @@ watsonx-medical-mcp-server/
 | **IBM watsonx.ai** credentials       | `API Key`, `Service URL`, `Project ID` |
 | (Optional) **Docker** & **GNU Make** | Containerised workflows                |
 
----
 
 ## 🛠️ Setup & Local Development
 
-1. **Clone the repo**
+Getting the server running locally is straightforward. This project requires **Python 3.11**.
 
-   ```bash
-   git clone https://github.com/ruslanmv/watsonx-medical-mcp-server.git
-   cd watsonx-medical-mcp-server
-   ```
+1.  **Clone the Repository**
 
-2. **Create & activate a virtual environment**
+    ```bash
+    git clone https://github.com/ruslanmv/watsonx-medical-mcp-server.git
+    cd watsonx-medical-mcp-server
+    ```
 
-   ```bash
-   make setup               # creates .venv & installs deps
-   source .venv/bin/activate
-   ```
+2.  **Set Up the Environment**
+    Run the interactive setup command. It will create a virtual environment (`.venv`) and install all dependencies.
 
-3. **Configure environment variables**
+    ```bash
+    make setup
+    ```
 
-   ```bash
-   cp .env.example .env
-   # then edit .env:
-   # WATSONX_APIKEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-   # WATSONX_URL=https://us-south.ml.cloud.ibm.com
-   # PROJECT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-   # MODEL_ID=meta-llama/llama-3-2-90b-vision-instruct
-   ```
+    The script will detect if you have an existing environment and ask if you want to reuse or reinstall it.
 
+3.  **Activate the Environment**
+    To run commands manually (like `python server.py`), you'll need to activate the environment in your shell.
 
+    ```bash
+    source .venv/bin/activate
+    ```
 
-4. **Run the agent (STDIO MCP server)**
+    **Note**: You don't need to do this when using `make` targets like `make run` or `make test`, as they handle it automatically.
 
-   ```bash
-   make run
-   ```
+4.  **Configure Environment Variables**
+    Create a `.env` file from the example and add your IBM Watsonx credentials.
 
-   The server now speaks MCP on stdin/stdout.
+    ```bash
+    cp .env.example .env
+    ```
 
-5. **Quick smoke test**
+    Now, edit the `.env` file with your details:
 
-   ```bash
-   python test/test_server.py
-   ```
+    ```ini
+    # .env
+    WATSONX_APIKEY="your_api_key_here"
+    PROJECT_ID="your_project_id_here"
 
-   ![](assets/2025-06-30-22-15-29.png)
+    # Optional: Change the default model or URL
+    # WATSONX_URL="https://us-south.ml.cloud.ibm.com"
+    # MODEL_ID="meta-llama/llama-3-2-90b-vision-instruct"
+    ```
 
----
+5.  **Run the Server**
+    Start the server, which will communicate over STDIO (standard input/output).
+
+    ```bash
+    make run
+    ```
+
+6.  **Run a Quick Test**
+    To confirm everything is working, run the test suite.
+
+    ```bash
+    make test
+    ```
+
+    This command will send a test query to your running server and verify the connection.
+
+-----
 
 ## ⚙️ Makefile Targets
 
+The `Makefile` provides several commands to streamline development. You can view this list anytime by running `make help`.
+
 ```text
-make setup         # Create / update .venv & install deps
-make run           # Start stdio-based MCP server
-make lint          # Run flake8
-make fmt           # Format code with Black
-make test          # Run pytest suite
-make check         # lint + fmt + test
-make docker-build  # Build Docker image
-make docker-run    # Run containerised server
-make clean-stamp   # Force reinstall deps without deleting .venv
-make clean         # Remove .venv
+Makefile for watsonx-medical-mcp-server
+
+Usage: make <target>
+
+Core Targets:
+  setup            - Interactively set up the Python virtual environment. The default target.
+  reinstall        - Force re-creation of the virtual environment and install dependencies.
+  run              - Run the MCP server.
+
+Quality & Testing:
+  lint             - Check code style with flake8.
+  format           - Format code with black.
+  check-format     - Check if code is formatted, without modifying files.
+  test             - Run tests with pytest.
+  check            - Run all checks: lint, check-format, and test.
+
+Docker:
+  docker-build     - Build the Docker image.
+  docker-run       - Run the Docker container (requires .env file).
+
+Cleanup:
+  clean            - Remove the virtual environment and cache files.
 ```
 
----
+-----
 
-## 🐳 Docker
-
-1. **Build**
-
-   ```bash
-   make docker-build
-   ```
-
-2. **Run**
-
-   ```bash
-   make docker-run
-   ```
-
-   The container reads your `.env`, launches `server.py`, and communicates via STDIO.
-   Mount volumes or expose ports as needed.
-
----
 
 ## 🔗 Registering in MCP Gateway
 
