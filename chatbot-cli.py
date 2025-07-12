@@ -3,7 +3,7 @@
 import asyncio
 import json
 import sys
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 
 class MCPChatbot:
@@ -162,10 +162,10 @@ Available commands:
   /clear         - Clear conversation history
   /summary       - Get conversation summary
   /quit or /exit - Exit the chatbot
-  
+
 For medical symptom analysis, you can also type:
   symptoms: <your symptoms>
-  
+
 Otherwise, just type your message to chat with the AI assistant.
 
 Examples:
