@@ -67,7 +67,6 @@ def test_chat_with_watsonx_api_error(mock_model_inference):
     # Assert: Check that our error handling logic returned the correct message
     assert "Error generating response: API Connection Failed" in response
 
-
 def test_get_server_info_resource():
     """
     GIVEN the server is running
