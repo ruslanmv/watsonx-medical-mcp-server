@@ -1,11 +1,65 @@
-# pyproject.toml
+# pyproject.toml for watsonx-medical-mcp-server  - 2025-07-14
+
+[project]
+name            = "watsonx-medical-mcp-server"
+version         = "1.0.0"
+description     = "Medical assistant powered by IBM watsonx.ai for symptom analysis and health consultations"
+readme          = "README.md"
+requires-python = ">=3.11"
+license         = { file = "LICENSE" }
+
+dependencies = [
+  "python-dotenv>=0.21.0",
+  "ibm-watsonx-ai>=1.3.8",
+  "mcp[cli]>=1.6.0",
+  "fastapi>=0.110.0",   # ← aligned with current stable
+  "uvicorn>=0.27.0",
+  "flask==3.1.0",
+  "markdown==3.8.2",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.2.0",
+  "pytest-mock>=3.14.0",
+]
+dev  = [
+  "pytest>=8.2.0",
+  "pytest-mock>=3.14.0",
+  "black>=24.3.0",
+]
+
+[project.scripts]
+# exposes `chatbot-cli` on PATH
+chatbot-cli = "chatbot_cli:main"
+
+[build-system]
+requires      = ["setuptools>=69.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = [
+  "backend",
+  "chatbot",
+  "chatbot_cli",   # ← matches renamed file
+  "frontend",
+  "server",
+]
+packages = []      # no implicit package discovery
+
+[tool.uv]
+dev-dependencies = [
+  "pytest>=8.2.0",
+  "pytest-mock>=3.14.0",
+  "black>=24.3.0",
+]
+
 [tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-extend-exclude = '''
+line-length     = 88
+target-version  = ["py311"]
+include         = '\\.pyi?$'    # ← single-quoted literal keeps the back-slash
+extend-exclude  = '''
 /(
-  # directories
   \.eggs
   | \.git
   | \.hg
@@ -18,8 +72,8 @@ extend-exclude = '''
 '''
 
 [tool.pytest.ini_options]
-testpaths = ["test"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --tb=short"
+testpaths         = ["test"]
+python_files      = "test_*.py"
+python_classes    = "Test*"
+python_functions  = "test_*"
+addopts           = "-v --tb=short"
