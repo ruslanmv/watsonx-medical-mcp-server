@@ -3,8 +3,8 @@
 #  Builds a lightweight container that runs server.py via STDIO
 # ────────────────────────────────────────────────────────────────
 
-# 1️⃣ Base image – slim Python 3.11
-FROM python:3.11-slim AS base
+# 1️⃣ Base image – slim Python 3.12
+FROM python:3.12-slim AS base
 
 # 2️⃣ Environment settings
 ENV PYTHONUNBUFFERED=1 \
