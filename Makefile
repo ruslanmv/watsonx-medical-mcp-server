@@ -2,7 +2,7 @@
 #
 # Features
 # --------
-# • Verifies that Python 3.11 is installed.
+# • Verifies that Python 3.12 is installed.
 # • Creates/updates an isolated virtual-env in `.venv`.
 # • Convenient `lint` target that runs **both** Flake8 and `black --check`.
 # • Separate `format` and `check-format` targets for full control.
@@ -20,7 +20,7 @@
 # ==============================================================================
 
 # Required Python version
-PYTHON_VERSION ?= 3.11
+PYTHON_VERSION ?= 3.12
 
 # Paths inside the repo
 VENV        := .venv
